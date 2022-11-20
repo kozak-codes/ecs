@@ -29,7 +29,7 @@
 /**
  * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef {{
- *   (world: World<ComponentMap>) => System
+ *   (this: SystemFunction, world: World<ComponentMap>) => System
  * }} SystemFunction
  * @prop {string} [name] Name of the function. Defaults to "anonymousSystem"
  */
@@ -237,7 +237,7 @@ export type System = {
 };
 export type SystemFunction<ComponentMap extends {
     [key: string]: any;
-} = any> = (world: World<ComponentMap>) => System;
+} = any> = (this: SystemFunction, world: World<ComponentMap>) => System;
 export type Listener = any;
 export type ListenerMap = {
     [key: string]: any;

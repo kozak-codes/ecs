@@ -42,7 +42,7 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
 /**
  * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef {{
- *   (world: World<ComponentMap>) => System
+ *   (this: SystemFunction, world: World<ComponentMap>) => System
  * }} SystemFunction
  * @prop {string} [name] Name of the function. Defaults to "anonymousSystem"
  */
@@ -393,7 +393,7 @@ function _matchesFilter (filterId, entity, componentIgnoreList=[]) {
  * @param {SystemFunction} fn 
  */
 export function addSystem (world, fn) {
-    const system = fn(world)
+    const system = fn.call(fn, world);
 
     world.stats.systems.push({
         name: fn.name || 'anonymousSystem',
