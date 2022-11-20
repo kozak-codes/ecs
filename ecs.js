@@ -14,14 +14,14 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
- * @template {{[ key: string ]: Component}} ComponentMap
+ * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef {{
  *  [ key: string ]: Component
  * } & ComponentMap} Entity
  */
 
 /**
- * @template {{[ key: string ]: Component}} ComponentMap
+ * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef { Entity<ComponentMap>[] } FilteredEntityList
  */
 
@@ -40,10 +40,10 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
- * @template {{[ key: string ]: Component}} ComponentMap
+ * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef {{
  *   (world: World<ComponentMap>) => System
- * }} SystemFunction<ComponentMap>
+ * }} SystemFunction
  * @prop {string} [name] Name of the function. Defaults to "anonymousSystem"
  */
 
@@ -90,9 +90,9 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
- * @template {{ [key: string]: Component }} ComponentMap
+ * @template {{[ key: string ]: Component}} [ComponentMap]
  * @typedef { Object } World
- * @prop {Entity<ComponentMap>[]} entities 
+ * @prop {Entity<Partial<ComponentMap>>[]} entities 
  * @prop {FilterMap} filters 
  * @prop {System[]} systems 
  * @prop {ListenerChangeMap} listeners 
@@ -104,10 +104,11 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  * Creates a world and sends window post message with id `mreinstein/ecs-source`
  * and method `worldCreated`
  *
+ * @template {{[ key: string ]: Component}} [ComponentMap]
  * @param {number} worldId ID of the world to create
- * @returns {World} created world
+ * @returns {World<ComponentMap>} created world
  */
-export function createWorld (worldId=Math.ceil(Math.random() * 999999999) ) {
+export function createWorld(worldId=Math.ceil(Math.random() * 999999999) ) {
     /**
      * @type {World}
      */
@@ -166,8 +167,9 @@ export function createWorld (worldId=Math.ceil(Math.random() * 999999999) ) {
 
 /**
  * Creates an entity and adds it to the world, incrementing the entity count
- * @param {World} world world where entity will be added
- * @returns {Entity} the created entity
+ * @template {{[ key: string ]: Component}} [ComponentMap]
+ * @param {World<ComponentMap>} world world where entity will be added
+ * @returns {Entity<ComponentMap>} the created entity
  */
 export function createEntity (world) {
     const entity = { }
@@ -178,10 +180,12 @@ export function createEntity (world) {
 
 /**
  * Adds a component to the entity
- * @param {World} world world where listener will be invoked
- * @param {Entity} entity 
- * @param {string} componentName 
- * @param {Component} [componentData] 
+ * @template {{[ key: string ]: Component}} [ComponentMap]
+ * @template {keyof ComponentMap} ComponentName
+ * @param {World<ComponentMap>} world world where listener will be invoked
+ * @param {Entity<ComponentMap>} entity 
+ * @param {ComponentName} componentName 
+ * @param {ComponentMap[ComponentName]} [componentData] 
  * @returns {void} returns early if this is a duplicate componentName
  */
 export function addComponentToEntity (world, entity, componentName, componentData={}) {
@@ -227,9 +231,11 @@ export function addComponentToEntity (world, entity, componentName, componentDat
 
 /**
  * Removes a component from the entity, optionally deferring removal
- * @param {World} world world where listener will be invoked
- * @param {Entity} entity entity to remove component from
- * @param {string} componentName name of the component to remove
+ * @template {{[ key: string ]: Component}} [ComponentMap]
+ * @template {keyof ComponentMap} [ComponentName]
+ * @param {World<ComponentMap>} world world where listener will be invoked
+ * @param {Entity<ComponentMap> & { [ ComponentName ]: ComponentMap[ComponentName] }} entity entity to remove component from
+ * @param {ComponentName} componentName name of the component to remove
  * @param {boolean} [deferredRemoval] Default is true, optionally defer removal 
  * @returns {void} returns early if componentName does not exist on entity
  */
@@ -296,16 +302,18 @@ export function addComponentToEntity (world, entity, componentName, componentDat
 }
 
 /**
+ * @template {{[ key: string ]: Component}} [ComponentMap]
+ * @template {keyof ComponentMap} [ComponentName]
  * Get entities from the world with all provided components. Optionally,
- * @param {World} world 
- * @param {string[]} componentNames A component filter used to match entities. 
+ * @param {World<ComponentMap>} world 
+ * @param {ComponentName[]} componentNames A component filter used to match entities. 
  * Must match all of the components in the filter.
  * Can add an exclamation mark at the beginning to query by components that are not present. For example:
  * `const entities = ECS.getEntities(world, [ 'transform', '!hero' ])`
  * 
  * @param {ListenerType} [listenerType] Optional. Can be "added" or "removed". Provides a list of entities
  * that match were "added" or "removed" since the last system call which matched the filter.
- * @returns {Entity[]} an array of entities that match the given filters
+ * @returns {Entity<ComponentMap>[]} an array of entities that match the given filters
  */
 export function getEntities (world, componentNames, listenerType) {
     const filterId = componentNames.join(',')
