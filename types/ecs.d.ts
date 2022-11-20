@@ -5,9 +5,10 @@
  * @typedef { any } Component
  */
 /**
+ * @template {{[ key: string ]: Component}} ComponentMap
  * @typedef {{
  *  [ key: string ]: Component
- * }} Entity
+ * } & ComponentMap} Entity
  */
 /**
  * @typedef { Entity[] } FilteredEntityList
@@ -67,8 +68,9 @@
  * @prop {number} lastSendTime time stats were last sent (used to throttle send)
  */
 /**
+ * @template {{ [key: string]: Component }} ComponentMap
  * @typedef { Object } World
- * @prop {Entity[]} entities
+ * @prop {Entity<ComponentMap>[]} entities
  * @prop {FilterMap} filters
  * @prop {System[]} systems
  * @prop {ListenerChangeMap} listeners
@@ -82,13 +84,13 @@
  * @param {number} worldId ID of the world to create
  * @returns {World} created world
  */
-export function createWorld(worldId?: number): World;
+export function createWorld(worldId?: number): any;
 /**
  * Creates an entity and adds it to the world, incrementing the entity count
  * @param {World} world world where entity will be added
  * @returns {Entity} the created entity
  */
-export function createEntity(world: World): Entity;
+export function createEntity(world: any): any;
 /**
  * Adds a component to the entity
  * @param {World} world world where listener will be invoked
@@ -97,7 +99,7 @@ export function createEntity(world: World): Entity;
  * @param {Component} [componentData]
  * @returns {void} returns early if this is a duplicate componentName
  */
-export function addComponentToEntity(world: World, entity: Entity, componentName: string, componentData?: Component): void;
+export function addComponentToEntity(world: any, entity: any, componentName: string, componentData?: Component): void;
 /**
  * Removes a component from the entity, optionally deferring removal
  * @param {World} world world where listener will be invoked
@@ -106,7 +108,7 @@ export function addComponentToEntity(world: World, entity: Entity, componentName
  * @param {boolean} [deferredRemoval] Default is true, optionally defer removal
  * @returns {void} returns early if componentName does not exist on entity
  */
-export function removeComponentFromEntity(world: World, entity: Entity, componentName: string, deferredRemoval?: boolean): void;
+export function removeComponentFromEntity(world: any, entity: any, componentName: string, deferredRemoval?: boolean): void;
 /**
  * Remove an entity from the world
  * @param {World} world world to remove entity from and emit listeners
@@ -114,7 +116,7 @@ export function removeComponentFromEntity(world: World, entity: Entity, componen
  * @param {boolean} [deferredRemoval] Default is true, optionally defer removal
  * @returns {void} returns early if entity does not exist in world
  */
-export function removeEntity(world: World, entity: Entity, deferredRemoval?: boolean): void;
+export function removeEntity(world: any, entity: any, deferredRemoval?: boolean): void;
 /**
  * Get entities from the world with all provided components. Optionally,
  * @param {World} world
@@ -127,54 +129,54 @@ export function removeEntity(world: World, entity: Entity, deferredRemoval?: boo
  * that match were "added" or "removed" since the last system call which matched the filter.
  * @returns {Entity[]} an array of entities that match the given filters
  */
-export function getEntities(world: World, componentNames: string[], listenerType?: ListenerType): Entity[];
+export function getEntities(world: any, componentNames: string[], listenerType?: ListenerType): Entity[];
 /**
  * Adds a system to the world.
  * @param {World} world
  * @param {SystemFunction} fn
  */
-export function addSystem(world: World, fn: SystemFunction): void;
+export function addSystem(world: any, fn: SystemFunction): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function preFixedUpdate(world: World, dt: number): void;
+export function preFixedUpdate(world: any, dt: number): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function fixedUpdate(world: World, dt: number): void;
+export function fixedUpdate(world: any, dt: number): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function postFixedUpdate(world: World, dt: number): void;
+export function postFixedUpdate(world: any, dt: number): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function preUpdate(world: World, dt: number): void;
+export function preUpdate(world: any, dt: number): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function update(world: World, dt: number): void;
+export function update(world: any, dt: number): void;
 /**
  *
  * @param {World} world
  * @param {number} dt Change in time since last update, in milliseconds
  */
-export function postUpdate(world: World, dt: number): void;
+export function postUpdate(world: any, dt: number): void;
 /**
  * necessary cleanup step at the end of each frame loop
  * @param {World} world
  */
-export function cleanup(world: World): void;
+export function cleanup(world: any): void;
 declare namespace _default {
     export { createWorld };
     export { createEntity };
@@ -194,9 +196,11 @@ declare namespace _default {
 export default _default;
 export type ListenerType = 'added' | 'removed';
 export type Component = any;
-export type Entity = {
+export type Entity<ComponentMap extends {
     [key: string]: any;
-};
+}> = {
+    [key: string]: any;
+} & ComponentMap;
 export type FilteredEntityList = Entity[];
 export type SystemUpdateFunction = (dt: number) => void;
 export type System = {
@@ -207,7 +211,7 @@ export type System = {
     onUpdate?: SystemUpdateFunction;
     onPostUpdate?: SystemUpdateFunction;
 };
-export type SystemFunction = (world: World) => System;
+export type SystemFunction = (world: any) => System;
 export type Listener = any;
 export type ListenerMap = {
     [key: string]: any;
@@ -261,8 +265,10 @@ export type WorldStats = {
      */
     lastSendTime: number;
 };
-export type World = {
-    entities: Entity[];
+export type World<ComponentMap extends {
+    [key: string]: any;
+}> = {
+    entities: Entity<ComponentMap>[];
     filters: FilterMap;
     systems: System[];
     listeners: ListenerChangeMap;

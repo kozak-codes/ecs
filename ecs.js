@@ -14,13 +14,15 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
+ * @template {{[ key: string ]: Component}} ComponentMap
  * @typedef {{
  *  [ key: string ]: Component
- * }} Entity
+ * } & ComponentMap} Entity
  */
 
 /**
- * @typedef { Entity[] } FilteredEntityList
+ * @template {{[ key: string ]: Component}} ComponentMap
+ * @typedef { Entity<ComponentMap>[] } FilteredEntityList
  */
 
 /**
@@ -38,9 +40,10 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
+ * @template {{[ key: string ]: Component}} ComponentMap
  * @typedef {{
- *   (world: World) => System
- * }} SystemFunction
+ *   (world: World<ComponentMap>) => System
+ * }} SystemFunction<ComponentMap>
  * @prop {string} [name] Name of the function. Defaults to "anonymousSystem"
  */
 
@@ -87,8 +90,9 @@ const now = (typeof performance === 'undefined') ? (() => Date.now()) : (() => p
  */
 
 /**
+ * @template {{ [key: string]: Component }} ComponentMap
  * @typedef { Object } World
- * @prop {Entity[]} entities 
+ * @prop {Entity<ComponentMap>[]} entities 
  * @prop {FilterMap} filters 
  * @prop {System[]} systems 
  * @prop {ListenerChangeMap} listeners 
